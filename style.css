@@ -1,0 +1,26 @@
+#label_mot_cache {
+  font-size: 60px;
+  letter-spacing: 25px;
+  font-weight: bold;
+  color: grey;
+  background:red;
+  text-shadow: #000000 1px 1px, #000000 -1px 1px, #000000 -1px -1px, #000000 1px -1px;
+}
+#bouton_voyelles {
+  font-size: 20px;
+  font-weight: bold;
+  color: pink;
+  text-shadow: #000000 1px 1px, #000000 -1px 1px, #000000 -1px -1px, #000000 1px -1px;
+}
+#bouton_graphemes {
+  font-size: 20px;
+  font-weight: bold;
+  color: orange;
+  text-shadow: #000000 1px 1px, #000000 -1px 1px, #000000 -1px -1px, #000000 1px -1px;
+}
+#bouton_consommes {
+  font-size: 20px;
+  font-weight: bold;
+  color: green;
+  text-shadow: #000000 1px 1px, #000000 -1px 1px, #000000 -1px -1px, #000000 1px -1px;
+}

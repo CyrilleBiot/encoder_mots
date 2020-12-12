@@ -1,0 +1,6 @@
+chien
+lapin
+marteau
+poisson
+train
+voiture
