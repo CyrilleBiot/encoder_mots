@@ -55,8 +55,8 @@ class EcrireMot(Gtk.Window):
         self.mots_deja_sortis = []
         self.mots_deja_sortis.append(self.mot_a_trouver)
         self.nombreDeMots = 1
-        print(self.mots_deja_sortis, " -- ", len(self.liste_mots_a_trouver))
-        print(self.mot_a_trouver)
+        #print(self.mots_deja_sortis, " -- ", len(self.liste_mots_a_trouver))
+        #print(self.mot_a_trouver)
 
         # SCORE
         self.score_total = len(self.liste_mots_a_trouver)
@@ -65,6 +65,14 @@ class EcrireMot(Gtk.Window):
         # Label du score
         self.label_du_score = Gtk.Label(label=self.message_score)
 
+        # Ajout d'un notebook
+        self.notebook = Gtk.Notebook()
+        self.add(self.notebook)
+        self.connect
+
+        #
+        # # ONGLET 1 DU NOTEBOOK
+        #
         # Creation de la grille
         grid = Gtk.Grid()
         grid.set_column_homogeneous(False)
@@ -91,7 +99,6 @@ class EcrireMot(Gtk.Window):
         # Création du clavier virtuel
         self.voyelles = "aàeéèêiîïoôöuy"
         self.consommes = "bcçdfghjklmnpqrstvwxz"
-        print(len(self.consommes))
         self.g = ["au", "eau", "ar", "ai", "ei", "er","et", "ez", "eu", "an", "am", "en", "em", "ou", "oi", "or", "on", "om", "ar",
                   "ch", "ph", "ain", "ein", "in", "im",  "un", "um" , "ion", "oin","ss"]
         self.alphabet = self.voyelles + self.consommes
@@ -175,10 +182,6 @@ class EcrireMot(Gtk.Window):
         bouton_lire_son.connect("clicked", self.on_sound_play)
         bouton_lire_son.set_hexpand(False)
 
-        # Bouton CONFIG
-        bouton_configuration = Gtk.Button(label="Config.")
-        bouton_configuration.connect("clicked", self.on_button_clicked_child)
-
         # bouton A propos
         bouton_a_propos = Gtk.Button(label="About")
         bouton_a_propos.connect("clicked", self.on_about)
@@ -194,10 +197,57 @@ class EcrireMot(Gtk.Window):
         grid.attach(bouton_corriger, 13, 12, 1, 1)
         grid.attach(bouton_valider, 13, 13, 2, 1)
         grid.attach(self.label_du_score, 13, 15, 2, 3)
-        grid.attach(bouton_configuration,13,18,1,1)
-        grid.attach(bouton_a_propos, 14, 18, 1, 1)
+        grid.attach(bouton_a_propos, 13, 18, 2, 1)
         grid.attach(self.label_choix_du_theme,5,19,15,1)
-        self.add(grid)
+        #self.add(grid)
+
+        # Ajout au notebook
+        self.notebook.append_page(grid, Gtk.Label(label='Jeu'))
+
+        #
+        # # ONGLET 2 DU NOTEBOOK
+        #
+        # a new radiobutton with a label
+        label_config_grapheme = Gtk.Label(label='Graphèmes : ')
+        #self.choix_du_theme = ""
+
+        button0 = Gtk.RadioButton(label="tout")
+        button0.connect("toggled", self.toggled_cb)
+
+        # a grid to place the buttons
+        # Initialyze first button on a new grid and attach it
+        grid2 = Gtk.Grid.new()
+        grid2.set_column_homogeneous(False)
+        grid2.set_column_spacing(6)
+        grid2.set_row_spacing(6)
+        grid2.set_row_homogeneous(False)
+        grid2.attach(label_config_grapheme,1,1,3,1)
+        grid2.attach(button0, 2, 5, 1, 1)
+
+        # other buttons.
+        possibilities = ['o / au /eau', 'ou', 'oi', 'or', 'on / om', 'an / en / am / em' ]
+        button = [0] * len(possibilities)
+
+        for i in range(len(possibilities)):
+            # another radiobutton, in the same group as button1
+            button[i] = Gtk.RadioButton.new_from_widget(button0)
+            button[i].set_label(possibilities[i])
+            button[i].connect("toggled", self.toggled_cb)
+            button[i].set_active(False)
+            # pattach the button
+            grid2.attach(button[i], 2, i+6, 1, 1)
+
+        buttonOK = Gtk.Button(label="Valider le choix")
+        buttonOK.connect('clicked', self.on_valid_config)
+        grid2.attach(buttonOK,2,len(possibilities)+6,1,1)
+
+        # add these buttons on the grid to the children window
+        #self.add(grid2)
+        #self.show_all()
+
+        # Ajout au notebook
+        self.notebook.append_page(grid2, Gtk.Label(label='Configuration'))
+
 
     def check_if_image_exist(self, image):
         if os.path.isfile(image):
@@ -219,8 +269,8 @@ class EcrireMot(Gtk.Window):
                 liste_mots = fichier.readlines()
                 fichier.close()
                 self.mot_a_trouver = choice(liste_mots).rstrip()
-                print("nouveau mot")
-                print(self.liste_mots_a_trouver)
+                #print("nouveau mot")
+                #print(self.liste_mots_a_trouver)
                 if self.mot_a_trouver not in self.mots_deja_sortis:
                     break
         else:
@@ -273,6 +323,15 @@ class EcrireMot(Gtk.Window):
         file = self.dirBase + "/sons/" + self.mot_a_trouver + '.mp3'
         piste = vlc.MediaPlayer(file)
         piste.play()
+
+    def on_valid_config(self, widget):
+        """
+        Configuration de jeu enregistrée. Retour onglet 1.
+        :param widget:
+        :return:
+        """
+        self.notebook.set_current_page(0)
+        self.replay()
 
     def on_key_press_event(self, widget, event, label, buttonSensitive):
         """
@@ -458,76 +517,8 @@ class EcrireMot(Gtk.Window):
         """
         self.dialog.destroy()
 
-    def on_button_clicked_child(self, win):
-        self.dialog = ChildWindow()
-
-    def on_update_config(self , choix):
-        print('Thème réinitialisé : ', choix)
-
-
-
-class ChildWindow(Gtk.Window):
-    def __init__(self):
-        Gtk.Window.__init__(self)
-        self.connect("destroy", self.on_destroy)
-
-        self.choix_du_theme = "ini"
-        self.set_border_width(3)
-        self.set_resizable(False)
-        self.set_icon_from_file("apropos.png")
-        self.set_border_width(10)
-
-        # a new radiobutton with a label
-        button1 = Gtk.RadioButton(label="Button 1")
-        button1.connect("toggled", self.toggled_cb)
-
-        # a grid to place the buttons
-        # Initialyze first button on a new grid and attach it
-        grid = Gtk.Grid.new()
-        grid.set_column_homogeneous(False)
-        grid.set_column_spacing(6)
-        grid.set_row_spacing(6)
-        grid.set_row_homogeneous(False)
-        grid.attach(button1, 0, 0, 1, 1)
-
-        # other buttons.
-        possibilities = ['O / au /eau', 'ou', 'oi', 'or', 'on / om', 'an / en / am / em' ]
-        button = [0] * len(possibilities)
-
-        for i in range(len(possibilities)):
-            # another radiobutton, in the same group as button1
-            button[i] = Gtk.RadioButton.new_from_widget(button1)
-            button[i].set_label(possibilities[i])
-            button[i].connect("toggled", self.toggled_cb)
-            button[i].set_active(False)
-            # pattach the button
-            grid.attach(button[i], 0, i+1, 1, 1)
-
-        buttonOK = Gtk.Button(label="Valider le choix")
-        buttonOK.connect('clicked', self.on_child_validate)
-        grid.attach(buttonOK,0,len(possibilities)+1,1,1)
-
-        # add these buttons on the grid to the children window
-        self.add(grid)
-        self.show_all()
-    def on_child_validate(self, button):
-        print("OK")
-
-        self.on_destroy(self)
-
     def toggled_cb(self, button):
-        """
-        Callback function
-        :param button:
-        :return:
-        """
-        choix_du_theme = button.get_label()
-        EcrireMot.on_update_config(self, choix_du_theme)
-
-    def on_destroy(self, widget):
-        widget.hide()
-
-
+        self.label_choix_du_theme.set_text(button.get_label())
 
 
 
