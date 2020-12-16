@@ -3,7 +3,8 @@
   letter-spacing: 25px;
   font-weight: bold;
   color: grey;
-  background:red;
+  border-radius: 25px;
+  background: #666601;
   text-shadow: #000000 1px 1px, #000000 -1px 1px, #000000 -1px -1px, #000000 1px -1px;
 }
 #bouton_voyelles {

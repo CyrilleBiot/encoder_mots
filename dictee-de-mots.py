@@ -22,11 +22,12 @@ from gi.repository import Gtk, GdkPixbuf, Gdk
 from random import choice
 import string
 import vlc
+import os.path
 
 
 # ==============================================
 #      Si utilisation hors package, nécessite
-#      les paquets :  python3-vlc, python3-gi
+#      les paquets :  python3-vlc, python3-gi, python3-gtts
 # ==============================================
 
 class EcrireMot(Gtk.Window):
@@ -88,11 +89,11 @@ class EcrireMot(Gtk.Window):
         bouton_valider.connect("clicked", self.on_validate_word, self.label_mot_cache, self.label_du_score)
 
         # Création du clavier virtuel
-        self.voyelles = "aàeéèêiîïouy"
-        self.consommes = "bcdfghjklmnpqrstvwxz"
+        self.voyelles = "aàeéèêiîïoôöuy"
+        self.consommes = "bcçdfghjklmnpqrstvwxz"
         print(len(self.consommes))
-        self.g = ["au", "eau", "ar", "ai", "ei", "et", "ez", "an", "am", "en", "em", "ou", "oi", "or", "on", "om", "ar",
-                  "ch", "ph", "ain", "ein", "in", "im", "ion", "oin"]
+        self.g = ["au", "eau", "ar", "ai", "ei", "er","et", "ez", "eu", "an", "am", "en", "em", "ou", "oi", "or", "on", "om", "ar",
+                  "ch", "ph", "ain", "ein", "in", "im",  "un", "um" , "ion", "oin","ss"]
         self.alphabet = self.voyelles + self.consommes
         nombre_de_boutons = len(self.voyelles) + len(self.consommes) + len(self.g)
         self.bouton_lettres = [0] * nombre_de_boutons
@@ -109,6 +110,7 @@ class EcrireMot(Gtk.Window):
             # self.boutonLettres[i] = Gtk.Button(label=chr(i + 65))
             self.bouton_lettres[i] = Gtk.Button(label=str(self.voyelles[i]))
             self.bouton_lettres[i].set_name('bouton_voyelles')
+            self.bouton_lettres[i].set_property("tooltip-text", "Clic droit pour écouter le nom de la voyelle.")
             self.bouton_lettres[i].connect("clicked", self.on_letter_add, self.bouton_lettres[i], self.label_mot_cache,
                                            bouton_corriger)
             eventbox[i] = Gtk.EventBox()
@@ -118,7 +120,7 @@ class EcrireMot(Gtk.Window):
 
         # Les graphèmes
         for i in range(len(self.voyelles), len(self.voyelles) + len(self.g)):
-            if position_bouton_grapheme > len(self.g) / 2:
+            if position_bouton_grapheme > (len(self.g) -2) / 2:
                 nouvelle_ligne = 2
                 pg = position_bouton_grapheme - round((len(self.g) / 2))
             else:
@@ -127,6 +129,7 @@ class EcrireMot(Gtk.Window):
 
             self.bouton_lettres[i] = Gtk.Button(label=str(self.g[position_bouton_grapheme]))
             self.bouton_lettres[i].set_name('bouton_graphemes')
+            self.bouton_lettres[i].set_property("tooltip-text", "Clic droit pour écouter le son du graphème.")
             self.bouton_lettres[i].connect("clicked", self.on_letter_add, self.bouton_lettres[i], self.label_mot_cache,
                                            bouton_corriger)
             eventbox[i] = Gtk.EventBox()
@@ -146,6 +149,7 @@ class EcrireMot(Gtk.Window):
 
             self.bouton_lettres[i] = Gtk.Button(label=str(self.consommes[position_bouton_consomme]))
             self.bouton_lettres[i].set_name('bouton_consommes')
+            self.bouton_lettres[i].set_property("tooltip-text", "Clic droit pour écouter le nom de la consomme.")
             self.bouton_lettres[i].connect("clicked", self.on_letter_add, self.bouton_lettres[i], self.label_mot_cache,
                                            bouton_corriger)
             eventbox[i] = Gtk.EventBox()
@@ -159,6 +163,8 @@ class EcrireMot(Gtk.Window):
 
         # Affichage de l'image
         image = self.dirBase + '/images/' + self.mot_a_trouver + '.jpg'
+        image = self.check_if_image_exist(image)
+
         # Redimensionnement
         pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(filename=image, width=200, height=200,
                                                          preserve_aspect_ratio=False)
@@ -169,20 +175,36 @@ class EcrireMot(Gtk.Window):
         bouton_lire_son.connect("clicked", self.on_sound_play)
         bouton_lire_son.set_hexpand(False)
 
+        # Bouton CONFIG
+        bouton_configuration = Gtk.Button(label="Config.")
+        bouton_configuration.connect("clicked", self.on_button_clicked_child)
+
         # bouton A propos
-        bouton_a_propos = Gtk.Button(label="A propos")
+        bouton_a_propos = Gtk.Button(label="About")
         bouton_a_propos.connect("clicked", self.on_about)
+
+        # Label choix du theme
+        self.label_choix_du_theme = Gtk.Label(label="Général")
 
         # Positionnement des widgets sur le grid
         grid.attach(self.image, 0, 11, 3, 8)
-        grid.attach(self.label_mot_cache, 3, 11, 8, 8)
-        grid.attach(bouton_lire_son, 11, 11, 2, 1)
-        grid.attach(bouton_effacer, 12, 12, 1, 1)
-        grid.attach(bouton_corriger, 11, 12, 1, 1)
-        grid.attach(bouton_valider, 11, 13, 2, 1)
-        grid.attach(self.label_du_score, 11, 15, 2, 2)
-        grid.attach(bouton_a_propos, 11, 17, 2, 1)
+        grid.attach(self.label_mot_cache, 3, 11, 9, 8)
+        grid.attach(bouton_lire_son, 13, 11, 2, 1)
+        grid.attach(bouton_effacer, 14, 12, 1, 1)
+        grid.attach(bouton_corriger, 13, 12, 1, 1)
+        grid.attach(bouton_valider, 13, 13, 2, 1)
+        grid.attach(self.label_du_score, 13, 15, 2, 3)
+        grid.attach(bouton_configuration,13,18,1,1)
+        grid.attach(bouton_a_propos, 14, 18, 1, 1)
+        grid.attach(self.label_choix_du_theme,5,19,15,1)
         self.add(grid)
+
+    def check_if_image_exist(self, image):
+        if os.path.isfile(image):
+            pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(filename=image, width=200, height=200,                                                      preserve_aspect_ratio=False)
+        else:
+            image = self.dirBase + '/images/' +  'croix-rouge.jpg'
+        return image
 
     def replay(self):
         """
@@ -215,6 +237,8 @@ class EcrireMot(Gtk.Window):
 
         # Mise à jour de l'image
         image = self.dirBase + '/images/' + self.mot_a_trouver + '.jpg'
+        image = self.check_if_image_exist(image)
+
 
         # Redimensionnement
         pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(filename=image, width=200, height=200,
@@ -233,7 +257,7 @@ class EcrireMot(Gtk.Window):
         """
         # Si le bouton droit de la souris est pressé
         if event.type == Gdk.EventType.BUTTON_PRESS and event.button == 3:
-            file = "phonemes/" + param.get_label() + '.ogg'
+            file = "phonemes/" + param.get_label() + '.mp3'
             print(file)
             piste = vlc.MediaPlayer(file)
             piste.play()
@@ -281,7 +305,7 @@ class EcrireMot(Gtk.Window):
         """
         print(len(button.get_label()))
         # Message warning si plus de lettres que dans le mot
-        if self.positionInWord < len(self.mot_a_trouver):
+        if self.positionInWord + len(button.get_label()) < len(self.mot_a_trouver) + 1:
             editable = list(self.mot_cache)
 
             # lettre ou graphme / traitement
@@ -425,7 +449,7 @@ class EcrireMot(Gtk.Window):
         self.dialog.connect("response", self.on_about_reponse)
         self.dialog.run()
 
-    def on_about_reponse(self, widget, response):
+    def on_about_reponse(self, dialog, response):
         """
         Fonction fermant la boite de dialogue About
         :param widget:
@@ -433,6 +457,78 @@ class EcrireMot(Gtk.Window):
         :return:
         """
         self.dialog.destroy()
+
+    def on_button_clicked_child(self, win):
+        self.dialog = ChildWindow()
+
+    def on_update_config(self , choix):
+        print('Thème réinitialisé : ', choix)
+
+
+
+class ChildWindow(Gtk.Window):
+    def __init__(self):
+        Gtk.Window.__init__(self)
+        self.connect("destroy", self.on_destroy)
+
+        self.choix_du_theme = "ini"
+        self.set_border_width(3)
+        self.set_resizable(False)
+        self.set_icon_from_file("apropos.png")
+        self.set_border_width(10)
+
+        # a new radiobutton with a label
+        button1 = Gtk.RadioButton(label="Button 1")
+        button1.connect("toggled", self.toggled_cb)
+
+        # a grid to place the buttons
+        # Initialyze first button on a new grid and attach it
+        grid = Gtk.Grid.new()
+        grid.set_column_homogeneous(False)
+        grid.set_column_spacing(6)
+        grid.set_row_spacing(6)
+        grid.set_row_homogeneous(False)
+        grid.attach(button1, 0, 0, 1, 1)
+
+        # other buttons.
+        possibilities = ['O / au /eau', 'ou', 'oi', 'or', 'on / om', 'an / en / am / em' ]
+        button = [0] * len(possibilities)
+
+        for i in range(len(possibilities)):
+            # another radiobutton, in the same group as button1
+            button[i] = Gtk.RadioButton.new_from_widget(button1)
+            button[i].set_label(possibilities[i])
+            button[i].connect("toggled", self.toggled_cb)
+            button[i].set_active(False)
+            # pattach the button
+            grid.attach(button[i], 0, i+1, 1, 1)
+
+        buttonOK = Gtk.Button(label="Valider le choix")
+        buttonOK.connect('clicked', self.on_child_validate)
+        grid.attach(buttonOK,0,len(possibilities)+1,1,1)
+
+        # add these buttons on the grid to the children window
+        self.add(grid)
+        self.show_all()
+    def on_child_validate(self, button):
+        print("OK")
+
+        self.on_destroy(self)
+
+    def toggled_cb(self, button):
+        """
+        Callback function
+        :param button:
+        :return:
+        """
+        choix_du_theme = button.get_label()
+        EcrireMot.on_update_config(self, choix_du_theme)
+
+    def on_destroy(self, widget):
+        widget.hide()
+
+
+
 
 
 win = EcrireMot()
