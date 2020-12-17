@@ -8,8 +8,8 @@ __author__ = "Cyrille BIOT <cyrille@cbiot.fr>"
 __copyright__ = "Copyleft"
 __credits__ = "Cyrille BIOT <cyrille@cbiot.fr>"
 __license__ = "GPL"
-__version__ = "0.1"
-__date__ = "2020/12/12"
+__version__ = "0.2"
+__date__ = "2020/12/16"
 __maintainer__ = "Cyrille BIOT <cyrille@cbiot.fr>"
 __email__ = "cyrille@cbiot.fr"
 __status__ = "Devel"
@@ -251,7 +251,8 @@ class EcrireMot(Gtk.Window):
 
     def check_if_image_exist(self, image):
         if os.path.isfile(image):
-            pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(filename=image, width=200, height=200,                                                      preserve_aspect_ratio=False)
+            pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(filename=image, width=200, height=200, \
+                                                             preserve_aspect_ratio=False)
         else:
             image = self.dirBase + '/images/' +  'croix-rouge.jpg'
         return image
@@ -521,10 +522,23 @@ class EcrireMot(Gtk.Window):
         self.label_choix_du_theme.set_text(button.get_label())
 
 
+def main():
+    """
+    La boucle de lancement
+    :return:
+    """
+    win = EcrireMot()
+    win.gtk_style()
+    win.connect("destroy", Gtk.main_quit)
+    win.move(10, 10)
+    win.show_all()
+    Gtk.main()
 
-win = EcrireMot()
-win.gtk_style()
-win.connect("destroy", Gtk.main_quit)
-win.move(10, 10)
-win.show_all()
-Gtk.main()
+
+"""
+ Boucle main()
+"""
+if __name__ == "__main__":
+    # execute only if run as a script
+    main()
+
