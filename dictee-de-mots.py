@@ -47,9 +47,7 @@ class EcrireMot(Gtk.Window):
         self.positionInWord = 0
 
         # Lecture du fichier de mots
-        # Stockage dans une variable de la totalité des mots
-        with open(str(self.dirBase) + '/' + str(self.file)) as f:
-            self.liste_mots_a_trouver = [line.rstrip() for line in f]
+        self.generer_liste_mots_apres_motif_de_recherche(self, 'ad', 'ou')
 
         self.mot_a_trouver = choice(self.liste_mots_a_trouver).rstrip()
         self.mots_deja_sortis = []
@@ -178,9 +176,13 @@ class EcrireMot(Gtk.Window):
         self.image = Gtk.Image.new_from_pixbuf(pixbuf)
 
         # Bouton lecture du son
-        bouton_lire_son = Gtk.Button(label="ECOUTER SON")
-        bouton_lire_son.connect("clicked", self.on_sound_play)
-        bouton_lire_son.set_hexpand(False)
+        self.bouton_lire_son = Gtk.Button(label="ECOUTER SON")
+
+        # Fichier son Test de son existence
+        file = self.dirBase + '/sons/' + self.mot_a_trouver + '.mp3'
+        file = self.check_if_sound_exist(file)
+        self.bouton_lire_son.connect("clicked", self.on_sound_play)
+        self.bouton_lire_son.set_hexpand(False)
 
         # bouton A propos
         bouton_a_propos = Gtk.Button(label="About")
@@ -192,7 +194,7 @@ class EcrireMot(Gtk.Window):
         # Positionnement des widgets sur le grid
         grid.attach(self.image, 0, 11, 3, 8)
         grid.attach(self.label_mot_cache, 3, 11, 9, 8)
-        grid.attach(bouton_lire_son, 13, 11, 2, 1)
+        grid.attach(self.bouton_lire_son, 13, 11, 2, 1)
         grid.attach(bouton_effacer, 14, 12, 1, 1)
         grid.attach(bouton_corriger, 13, 12, 1, 1)
         grid.attach(bouton_valider, 13, 13, 2, 1)
@@ -248,6 +250,97 @@ class EcrireMot(Gtk.Window):
         # Ajout au notebook
         self.notebook.append_page(grid2, Gtk.Label(label='Configuration'))
 
+    def generer_liste_mots_apres_motif_de_recherche(self, widget, theme, motif):
+        """
+        Fonction de recherche sur les digrammes ou les trigrammes
+        :param fichier:
+        :param motif:
+        :return: list of results
+        """
+
+        liste_de_mots_a_exporter = []
+        # Stockage dans une variable de la totalité des mots
+        with open(str(self.dirBase) + '/' + str(self.file)) as f:
+            liste_mots_a_trouver = [line.rstrip() for line in f]
+        # print(liste_mots_a_trouver)
+        # split de la liste (spéaration MOT / GRAPHEMES
+        for i in range(len(liste_mots_a_trouver)):
+            liste_mots_a_trouver[i] = liste_mots_a_trouver[i].split(';', 3)
+            # print(liste_mots_a_trouver[i][1])
+            liste_mots_a_trouver[i][1] = liste_mots_a_trouver[i][1].split(',')
+            # DEBUG
+            # print(liste_mots_a_trouver[i][0], ' --- ', liste_mots_a_trouver[i][1], ' - ', liste_mots_a_trouver[i][2])
+
+        # Si motif, on organise le pattern de recherche pour correspondre au fichier de mots
+        if motif != "":
+            if motif == "in" or motif == "ain" or motif == "ein" or motif == "un":
+                motif = ["un", "ain", "ein"]
+            elif motif == "é" or motif == "ai" or motif == "et" or motif == "ez" or motif == "er":
+                motif = ["é", "et", "ai", "et", "ez", "er"]
+            elif motif == "an" or motif == "en" or motif == "em" or motif == "am" or motif == "oan":
+                motif = ["an", "am", "en", "em", "aon"]
+            elif motif == "f" or motif == "ph" or motif == "ff":
+                motif = ["ff", "ph", "f"]
+            elif motif == "i" or motif == "y" or motif == "il" or motif == "ille":
+                motif = ["i", "y", "il", "ille"]
+            elif motif == "on" or motif == "om":
+                motif = ["om", "on"]
+            elif motif == "o" or motif == "au" or motif == "eau":
+                motif = ["o", "eau", "au"]
+            elif motif == "c" or motif == "cc" or motif == "q" or motif == "qu" or motif == "ck" or motif == "k":
+                motif = ["c", "q", "qu", "ck", "k"]
+            else:
+                motif = [motif]
+        #
+        # Tri avec motif et theme
+        # Chargement complet du fichier
+        #
+        if motif != "" and theme != "":
+            print("Avec  motif  Avec   Thème")
+            print(motif)
+            for i in range(len(liste_mots_a_trouver)):
+                if theme in liste_mots_a_trouver[i][2]:
+                    for j in motif:
+                        if j in liste_mots_a_trouver[i][1]:
+                            print(liste_mots_a_trouver[i][0])
+                            liste_de_mots_a_exporter.append(liste_mots_a_trouver[i][0])
+        #
+        # Tri que sur thème
+        #
+        elif motif != "" and theme == "":
+            print("Avec  motif  Sans   Thème")
+            print(motif)
+            for i in range(len(liste_mots_a_trouver)):
+                for j in motif:
+                    if j in liste_mots_a_trouver[i][1]:
+                        print(liste_mots_a_trouver[i][0])
+                        liste_de_mots_a_exporter.append(liste_mots_a_trouver[i][0])
+        #
+        # Tri que sur thème
+        #
+        elif motif == "" and theme != "":
+            print("Sans  motif  Avec   Thème")
+            print(motif)
+            for i in range(len(liste_mots_a_trouver)):
+                if theme in liste_mots_a_trouver[i][2]:
+                    print(liste_mots_a_trouver[i][0])
+                    liste_de_mots_a_exporter.append(liste_mots_a_trouver[i][0])
+        #
+        # Ni motif ni theme
+        # On charge le fichier complet
+        #
+        else:
+            print("Ni motif Ni Thème")
+            for i in range(len(liste_mots_a_trouver)):
+                liste_de_mots_a_exporter.append(liste_mots_a_trouver[i][0])
+        self.liste_mots_a_trouver = liste_de_mots_a_exporter
+        print(self.liste_mots_a_trouver, len(self.liste_mots_a_trouver))
+
+    def check_if_sound_exist(self, file_sound):
+        if not os.path.isfile(file_sound):
+            self.bouton_lire_son.set_sensitive(False)
+        else:
+            self.bouton_lire_son.set_sensitive(True)
 
     def check_if_image_exist(self, image):
         if os.path.isfile(image):
@@ -269,7 +362,8 @@ class EcrireMot(Gtk.Window):
                 fichier = open(str(self.dirBase) + '/' + str(self.file), "r")
                 liste_mots = fichier.readlines()
                 fichier.close()
-                self.mot_a_trouver = choice(liste_mots).rstrip()
+                self.generer_liste_mots_apres_motif_de_recherche(self, 'ad', 'ou')
+                self.mot_a_trouver = choice(self.liste_mots_a_trouver).rstrip()
                 #print("nouveau mot")
                 #print(self.liste_mots_a_trouver)
                 if self.mot_a_trouver not in self.mots_deja_sortis:
@@ -289,6 +383,10 @@ class EcrireMot(Gtk.Window):
         # Mise à jour de l'image
         image = self.dirBase + '/images/' + self.mot_a_trouver + '.jpg'
         image = self.check_if_image_exist(image)
+
+        # Mise à jour du mp3
+        file = self.dirBase + '/sons/' + self.mot_a_trouver + '.mp3'
+        file = self.check_if_sound_exist(file)
 
 
         # Redimensionnement
