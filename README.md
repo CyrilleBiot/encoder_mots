@@ -19,4 +19,4 @@ Et parsing de ce fichier.
 
 ## Screenshoots
 
-![screenshoot](https://cbiot.fr/site/encodage001.png)
+![screenshoot](./screenshoot001.png)
