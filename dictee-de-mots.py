@@ -8,15 +8,13 @@ __author__ = "Cyrille BIOT <cyrille@cbiot.fr>"
 __copyright__ = "Copyleft"
 __credits__ = "Cyrille BIOT <cyrille@cbiot.fr>"
 __license__ = "GPL"
-__version__ = "0.2"
-__date__ = "2020/12/16"
+__version__ = "2.0"
+__date__ = "2020/02/27"
 __maintainer__ = "Cyrille BIOT <cyrille@cbiot.fr>"
 __email__ = "cyrille@cbiot.fr"
 __status__ = "Devel"
 """
-
 import gi
-
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, GdkPixbuf, Gdk
 from random import choice
@@ -39,26 +37,12 @@ class EcrireMot(Gtk.Window):
         self.set_icon_from_file("apropos.png")
         self.set_border_width(10)
 
-        # Quelques variables pour l'environnement
-        self.dirBase = '.'
-        self.file = 'mots.txt'
+        self.init_the_game()
 
-        # Initialisation des variables
-        self.positionInWord = 0
-
-        # Lecture du fichier de mots
-        self.generer_liste_mots_apres_motif_de_recherche(self, 'ad', 'ou')
-
-        self.mot_a_trouver = choice(self.liste_mots_a_trouver).rstrip()
-        self.mots_deja_sortis = []
-        self.mots_deja_sortis.append(self.mot_a_trouver)
-        self.nombreDeMots = 1
-        #print(self.mots_deja_sortis, " -- ", len(self.liste_mots_a_trouver))
-        #print(self.mot_a_trouver)
 
         # SCORE
         self.score_total = len(self.liste_mots_a_trouver)
-        self.score = 0
+
         self.message_score = "Score : " + str(self.score) + " sur " + str(self.score_total)
         # Label du score
         self.label_du_score = Gtk.Label(label=self.message_score)
@@ -167,7 +151,7 @@ class EcrireMot(Gtk.Window):
         self.connect("key-press-event", self.on_key_press_event, self.label_mot_cache, bouton_corriger)
 
         # Affichage de l'image
-        image = self.dirBase + '/images/' + self.mot_a_trouver + '.jpg'
+        image = self.dirBase + '/images/' + self.mot_a_trouver + '.png'
         image = self.check_if_image_exist(image)
 
         # Redimensionnement
@@ -179,7 +163,7 @@ class EcrireMot(Gtk.Window):
         self.bouton_lire_son = Gtk.Button(label="ECOUTER SON")
 
         # Fichier son Test de son existence
-        file = self.dirBase + '/sons/' + self.mot_a_trouver + '.mp3'
+        file = self.dirBase + '/mp3_images/' + self.mot_a_trouver + '.mp3'
         file = self.check_if_sound_exist(file)
         self.bouton_lire_son.connect("clicked", self.on_sound_play)
         self.bouton_lire_son.set_hexpand(False)
@@ -189,7 +173,7 @@ class EcrireMot(Gtk.Window):
         bouton_a_propos.connect("clicked", self.on_about)
 
         # Label choix du theme
-        self.label_choix_du_theme = Gtk.Label(label="Général")
+        self.label_choix_du_theme = Gtk.Label(label="Animaux domestiques")
 
         # Positionnement des widgets sur le grid
         grid.attach(self.image, 0, 11, 3, 8)
@@ -200,7 +184,7 @@ class EcrireMot(Gtk.Window):
         grid.attach(bouton_valider, 13, 13, 2, 1)
         grid.attach(self.label_du_score, 13, 15, 2, 3)
         grid.attach(bouton_a_propos, 13, 18, 2, 1)
-        grid.attach(self.label_choix_du_theme,5,19,15,1)
+        grid.attach(self.label_choix_du_theme, 6, 19, 5, 1)
         #self.add(grid)
 
         # Ajout au notebook
@@ -210,11 +194,6 @@ class EcrireMot(Gtk.Window):
         # # ONGLET 2 DU NOTEBOOK
         #
         # a new radiobutton with a label
-        label_config_grapheme = Gtk.Label(label='Graphèmes : ')
-        #self.choix_du_theme = ""
-
-        button0 = Gtk.RadioButton(label="tout")
-        button0.connect("toggled", self.toggled_cb)
 
         # a grid to place the buttons
         # Initialyze first button on a new grid and attach it
@@ -223,118 +202,90 @@ class EcrireMot(Gtk.Window):
         grid2.set_column_spacing(6)
         grid2.set_row_spacing(6)
         grid2.set_row_homogeneous(False)
-        grid2.attach(label_config_grapheme,1,1,3,1)
-        grid2.attach(button0, 2, 5, 1, 1)
 
+        #
+        # PATTERN OF RESEARCH : THEMES
+        #
         # other buttons.
-        possibilities = ['o / au /eau', 'ou', 'oi', 'or', 'on / om', 'an / en / am / em' ]
-        button = [0] * len(possibilities)
+        # a new radiobutton with a label
+        label_config_theme = Gtk.Label(label='Thèmes : ')
+        grid2.attach(label_config_theme,4,1,3,1)
+
+        buttonTheme0 = Gtk.RadioButton(label="Tout")
+        buttonTheme0.connect("toggled", self.toggled_cb_theme)
+        grid2.attach(buttonTheme0, 4, 2, 1, 1)
+
+        possibilities = ['Animaux domestiques', 'Animaux de la forêt','Animaux sauvages']
+        buttonTheme = [0] * len(possibilities)
+        self.labelThemeHidden = [0] * len(possibilities)
+        nb_lignes_grid2 = len(possibilities)+3
 
         for i in range(len(possibilities)):
+            print(possibilities[i][0] , possibilities[i][1])
             # another radiobutton, in the same group as button1
-            button[i] = Gtk.RadioButton.new_from_widget(button0)
-            button[i].set_label(possibilities[i])
-            button[i].connect("toggled", self.toggled_cb)
-            button[i].set_active(False)
-            # pattach the button
-            grid2.attach(button[i], 2, i+6, 1, 1)
+            buttonTheme[i] = Gtk.RadioButton.new_from_widget(buttonTheme0)
+            buttonTheme[i].set_label(possibilities[i])
+            buttonTheme[i].connect("toggled", self.toggled_cb_theme)
+            buttonTheme[i].set_active(False)
+            # attach the button
+            grid2.attach(buttonTheme[i], 4, i+3, 1, 1)
 
         buttonOK = Gtk.Button(label="Valider le choix")
         buttonOK.connect('clicked', self.on_valid_config)
-        grid2.attach(buttonOK,2,len(possibilities)+6,1,1)
 
-        # add these buttons on the grid to the children window
-        #self.add(grid2)
-        #self.show_all()
+        # Pack at bottom of the button OK theme
+        if nb_lignes_grid2 < len(possibilities)+2:
+            nb_lignes_grid2 = len(possibilities)+2
+
+        grid2.attach(buttonOK,4,nb_lignes_grid2,1,1)
 
         # Ajout au notebook
         self.notebook.append_page(grid2, Gtk.Label(label='Configuration'))
 
-    def generer_liste_mots_apres_motif_de_recherche(self, widget, theme, motif):
-        """
-        Fonction de recherche sur les digrammes ou les trigrammes
-        :param fichier:
-        :param motif:
-        :return: list of results
-        """
+    def init_the_game(self):
+        # Quelques variables pour l'environnement
+        self.dirBase = '.'
+        self.file = 'animaux-domestiques.txt'
 
-        liste_de_mots_a_exporter = []
-        # Stockage dans une variable de la totalité des mots
-        with open(str(self.dirBase) + '/' + str(self.file)) as f:
-            liste_mots_a_trouver = [line.rstrip() for line in f]
-        # print(liste_mots_a_trouver)
-        # split de la liste (spéaration MOT / GRAPHEMES
-        for i in range(len(liste_mots_a_trouver)):
-            liste_mots_a_trouver[i] = liste_mots_a_trouver[i].split(';', 3)
-            # print(liste_mots_a_trouver[i][1])
-            liste_mots_a_trouver[i][1] = liste_mots_a_trouver[i][1].split(',')
-            # DEBUG
-            # print(liste_mots_a_trouver[i][0], ' --- ', liste_mots_a_trouver[i][1], ' - ', liste_mots_a_trouver[i][2])
+        # Initialisation des variables
+        self.positionInWord = 0
+        self.motif_tri = ""
+        self.theme_tri = ""
+        self.score = 0
 
-        # Si motif, on organise le pattern de recherche pour correspondre au fichier de mots
-        if motif != "":
-            if motif == "in" or motif == "ain" or motif == "ein" or motif == "un":
-                motif = ["un", "ain", "ein"]
-            elif motif == "é" or motif == "ai" or motif == "et" or motif == "ez" or motif == "er":
-                motif = ["é", "et", "ai", "et", "ez", "er"]
-            elif motif == "an" or motif == "en" or motif == "em" or motif == "am" or motif == "oan":
-                motif = ["an", "am", "en", "em", "aon"]
-            elif motif == "f" or motif == "ph" or motif == "ff":
-                motif = ["ff", "ph", "f"]
-            elif motif == "i" or motif == "y" or motif == "il" or motif == "ille":
-                motif = ["i", "y", "il", "ille"]
-            elif motif == "on" or motif == "om":
-                motif = ["om", "on"]
-            elif motif == "o" or motif == "au" or motif == "eau":
-                motif = ["o", "eau", "au"]
-            elif motif == "c" or motif == "cc" or motif == "q" or motif == "qu" or motif == "ck" or motif == "k":
-                motif = ["c", "q", "qu", "ck", "k"]
-            else:
-                motif = [motif]
-        #
-        # Tri avec motif et theme
-        # Chargement complet du fichier
-        #
-        if motif != "" and theme != "":
-            print("Avec  motif  Avec   Thème")
-            print(motif)
-            for i in range(len(liste_mots_a_trouver)):
-                if theme in liste_mots_a_trouver[i][2]:
-                    for j in motif:
-                        if j in liste_mots_a_trouver[i][1]:
-                            print(liste_mots_a_trouver[i][0])
-                            liste_de_mots_a_exporter.append(liste_mots_a_trouver[i][0])
-        #
-        # Tri que sur thème
-        #
-        elif motif != "" and theme == "":
-            print("Avec  motif  Sans   Thème")
-            print(motif)
-            for i in range(len(liste_mots_a_trouver)):
-                for j in motif:
-                    if j in liste_mots_a_trouver[i][1]:
-                        print(liste_mots_a_trouver[i][0])
-                        liste_de_mots_a_exporter.append(liste_mots_a_trouver[i][0])
-        #
-        # Tri que sur thème
-        #
-        elif motif == "" and theme != "":
-            print("Sans  motif  Avec   Thème")
-            print(motif)
-            for i in range(len(liste_mots_a_trouver)):
-                if theme in liste_mots_a_trouver[i][2]:
-                    print(liste_mots_a_trouver[i][0])
-                    liste_de_mots_a_exporter.append(liste_mots_a_trouver[i][0])
-        #
-        # Ni motif ni theme
-        # On charge le fichier complet
-        #
-        else:
-            print("Ni motif Ni Thème")
-            for i in range(len(liste_mots_a_trouver)):
-                liste_de_mots_a_exporter.append(liste_mots_a_trouver[i][0])
-        self.liste_mots_a_trouver = liste_de_mots_a_exporter
-        print(self.liste_mots_a_trouver, len(self.liste_mots_a_trouver))
+        # Lecture du fichier de mots
+        self.liste_mots_a_trouver = self.creer_liste_mot(self.file)
+        print(self.liste_mots_a_trouver)
+        self.mot_a_trouver = choice(self.liste_mots_a_trouver)
+        self.mots_deja_sortis = []
+        self.mots_deja_sortis.append(self.mot_a_trouver)
+        self.nombreDeMots = 1
+        print(self.mot_a_trouver)
+
+        # SCORE
+        self.score_total = len(self.liste_mots_a_trouver)
+
+    def creer_liste_mot(self, filePath):
+        """
+        Fichier fichier contenant les noms
+        :param file:
+        :return:
+        """
+        try:
+            filePath
+            # Do something with the file
+        except IOError:
+            print("Fichier demandé non accessible")
+
+        # Création d'un tableau pour récupérer les noms contenus dans le fichier
+        tableau_de_mots = []
+
+        with open(filePath) as fp:
+            line = fp.readline()
+            while line:
+                tableau_de_mots.append(line.strip())
+                line = fp.readline()
+        return tableau_de_mots
 
     def check_if_sound_exist(self, file_sound):
         if not os.path.isfile(file_sound):
@@ -350,27 +301,26 @@ class EcrireMot(Gtk.Window):
             image = self.dirBase + '/images/' +  'croix-rouge.jpg'
         return image
 
-    def replay(self):
+    def on_next_word(self):
         """
         Fonction relancement la partie
         :return:
         """
         self.positionInWord = 0
         # Mise à jour du mot
+        print("replay : ", self.theme_tri, self.motif_tri)
         if len(self.mots_deja_sortis) < len(self.liste_mots_a_trouver):
             while True:
-                fichier = open(str(self.dirBase) + '/' + str(self.file), "r")
-                liste_mots = fichier.readlines()
-                fichier.close()
-                self.generer_liste_mots_apres_motif_de_recherche(self, 'ad', 'ou')
                 self.mot_a_trouver = choice(self.liste_mots_a_trouver).rstrip()
-                #print("nouveau mot")
-                #print(self.liste_mots_a_trouver)
+                print("nouveau mot")
+                print(self.liste_mots_a_trouver)
                 if self.mot_a_trouver not in self.mots_deja_sortis:
                     break
         else:
             if len(self.mots_deja_sortis) == len(self.liste_mots_a_trouver):
-                exit()
+             #exit()
+             print("normaelement exit")
+             pass
 
         # Incrémente la liste de mots deja vu
         self.nombreDeMots += 1
@@ -381,11 +331,11 @@ class EcrireMot(Gtk.Window):
         self.label_mot_cache.set_text(self.mot_cache)
 
         # Mise à jour de l'image
-        image = self.dirBase + '/images/' + self.mot_a_trouver + '.jpg'
+        image = self.dirBase + '/images/' + self.mot_a_trouver + '.png'
         image = self.check_if_image_exist(image)
 
         # Mise à jour du mp3
-        file = self.dirBase + '/sons/' + self.mot_a_trouver + '.mp3'
+        file = self.dirBase + '/mp3_images/' + self.mot_a_trouver + '.mp3'
         file = self.check_if_sound_exist(file)
 
 
@@ -419,7 +369,7 @@ class EcrireMot(Gtk.Window):
         :param wigdet:
         :param ogg: le fichier son
         """
-        file = self.dirBase + "/sons/" + self.mot_a_trouver + '.mp3'
+        file = self.dirBase + "/mp3_images/" + self.mot_a_trouver + '.mp3'
         piste = vlc.MediaPlayer(file)
         piste.play()
 
@@ -429,8 +379,57 @@ class EcrireMot(Gtk.Window):
         :param widget:
         :return:
         """
+        if self.theme_tri == "Animaux domestiques":
+            self.file = "animaux-domestiques.txt"
+        if self.theme_tri == "Animaux sauvages":
+            self.file = "animaux-sauvages.txt"
+        if self.theme_tri == "Animaux de la forêt":
+            self.file = "animaux-foret.txt"
+
+        print("ON VALID CONF", self.theme_tri, self.file)
+
+        # Initialisation des variables
+        self.positionInWord = 0
+        self.score = 0
+
+        # Lecture du fichier de mots
+        self.liste_mots_a_trouver = self.creer_liste_mot(self.file)
+        print(self.liste_mots_a_trouver)
+        self.mot_a_trouver = choice(self.liste_mots_a_trouver)
+        self.mots_deja_sortis = []
+        self.mots_deja_sortis.append(self.mot_a_trouver)
+        self.nombreDeMots = 1
+        print(self.mot_a_trouver)
+
+        # SCORE :Réinitialisation
+        self.score_total = len(self.liste_mots_a_trouver)
+
+        # Actualisation du mot caché
+        self.mot_cache = "-" * len(self.mot_a_trouver)
+        self.label_mot_cache.set_text(self.mot_cache)
+
+        # Actulisation de la zone de CHoix du thème
+        self.label_choix_du_theme.set_text(self.theme_tri)
+
+        # Mise à jour de l'image
+        image = self.dirBase + '/images/' + self.mot_a_trouver + '.png'
+        print(image)
+        image = self.check_if_image_exist(image)
+
+        # Mise à jour du mp3
+        file = self.dirBase + '/mp3_images/' + self.mot_a_trouver + '.mp3'
+        file = self.check_if_sound_exist(file)
+
+        # Redimensionnement
+        pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(filename=image, width=200, height=200,
+                                                         preserve_aspect_ratio=False)
+        self.image.set_from_pixbuf(pixbuf)
+
+        # Retourne vers l'onglet actif
         self.notebook.set_current_page(0)
-        self.replay()
+        print(self.mot_a_trouver)
+        print(self.motif_tri, " - - ", self.theme_tri)
+
 
     def on_key_press_event(self, widget, event, label, buttonSensitive):
         """
@@ -516,6 +515,7 @@ class EcrireMot(Gtk.Window):
         :param label: widget où afficher le message de correction
         :return:
         """
+        print('validate word, mot CACHE, mot TROUVER', self.mot_cache , self.mot_a_trouver)
         if self.mot_cache.capitalize() == self.mot_a_trouver.capitalize():
             message = 'très bien'
             self.score += 1
@@ -527,7 +527,7 @@ class EcrireMot(Gtk.Window):
         message_titre = "RESULTAT"
         # self.ok_alert(self, message_titre, message)
         print(message)
-        self.replay()
+        self.on_next_word()
         return
 
     def ok_alert(self, widget, message1, message2):
@@ -616,8 +616,13 @@ class EcrireMot(Gtk.Window):
         """
         self.dialog.destroy()
 
-    def toggled_cb(self, button):
-        self.label_choix_du_theme.set_text(button.get_label())
+    def toggled_cb_motif(self, button):
+        self.motif_tri = button.get_label()
+        #print(self.motif_tri)
+
+    def toggled_cb_theme(self, button):
+        self.theme_tri = button.get_label()
+        print(self.theme_tri)
 
 
 def main():
