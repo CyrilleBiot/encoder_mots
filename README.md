@@ -15,7 +15,7 @@ Rélaisation de cette base selon la **fréquence**, à adpater au cycle 2.
 # Depuis le git
 
 ```
-git clone
+git clone https://github.com/CyrilleBiot/encoder_mots.git
 ./source/encoder-mots.py
 ```
 
@@ -36,9 +36,13 @@ dpkg -r encoder-mots
 ## Todo
 Fichier de mots avec possibilité de filtre par phonème. Style
 bateau, [O]. Et parsing de ce fichier. La moulinette initiale a été abandonnée. A suivre.
+
 Incrémenter la base de données par thèmes.
+
 Pour l'instant, la fonction en fin de série est desactivée.
+
 Proposer une solution en cas de mot faux.
+
 Proposer des tips pour les lettres muettes, les consommes doubles...
 
 
