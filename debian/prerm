@@ -1,0 +1,7 @@
+#!/bin/bash
+echo "-----------------------------------------------------------------------"
+echo "Delete sym links"
+rm -f  /usr/bin/encoder-mots
+echo "Symbolic links deleted."
+echo "-----------------------------------------------------------------------"
+exit 0

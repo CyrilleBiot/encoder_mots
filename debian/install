@@ -1,0 +1,9 @@
+source/encoder-mots.py usr/share/encoder-mots/
+source/style.css usr/share/encoder-mots/
+source/listes-de-mots usr/share/encoder-mots/
+source/images usr/share/encoder-mots/
+source/images-mp3 usr/share/encoder-mots/
+source/phonemes usr/share/encoder-mots
+source/encoder-mots.desktop /usr/share/applications/
+source/encoder-mots.6.gz usr/share/man/man6/
+source/apropos.png  usr/share/encoder-mots/

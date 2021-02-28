@@ -1,0 +1,12 @@
+Source: encoder-mots
+Section: education
+Priority: extra
+Maintainer: Cyrille Biot <cyrille@cbiot.fr>
+Build-Depends: debhelper (>= 9)
+Homepage: https://github.com/CyrilleBiot/encoder_mots
+
+Package: encoder-mots
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}, python3, python3-gi,python3-vlc
+Homepage: https://github.com/CyrilleBiot/encoder_mots
+Description: Apprentissage de l'encodage de mots simples.

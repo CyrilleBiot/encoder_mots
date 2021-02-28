@@ -1,0 +1,13 @@
+[Desktop Entry]
+Version=1.0
+Name=Encodes Mots
+Comment=Utiliatire pour l'encodage de mots simples rencontrés au cycle II.
+Exec=/usr/share/encoder-mots/encoder-mots.py
+Icon=/usr/share/encoder-mots/apropros.png
+Terminal=False
+Type=Application
+Categories=Education;
+Keywords=education;
+Name[fr_FR]=Encoder Mots
+Name[fr_FR.UTF-8]=Encoder Mots
+Name[fr_FR.utf8]=Encoder Mots

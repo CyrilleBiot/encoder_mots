@@ -1,0 +1,8 @@
+#!/bin/bash
+echo "-----------------------------------------------------------------------"
+echo "Create sym links"
+ln -sf /usr/share/encoder-mots/encoder-mots.py /usr/bin/encoder-mots
+echo "Symbolic links created."
+ls -l /usr/bin/encoder-mots
+echo "-----------------------------------------------------------------------"
+exit 0
