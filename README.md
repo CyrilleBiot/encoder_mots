@@ -49,3 +49,6 @@ Proposer des tips pour les lettres muettes, les consommes doubles...
 ## Screenshoots
 
 ![screenshoot](./screenshoot001.png)
+
+Ce que ça donnera avec les phonèmes/graphêmes
+![screenshoot](./screenshoot002.png)
