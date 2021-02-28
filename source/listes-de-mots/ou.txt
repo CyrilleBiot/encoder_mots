@@ -1,0 +1,8 @@
+chouette
+loup
+kangourou
+poussin
+fourmi
+grenouille
+mouche
+mouette

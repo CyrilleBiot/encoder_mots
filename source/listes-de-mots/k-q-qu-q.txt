@@ -1,0 +1,12 @@
+castor
+crocodile
+kanourou
+perroquet
+canard
+coq
+cochon
+crapaud
+escargot
+scarabée
+crabe
+pélican

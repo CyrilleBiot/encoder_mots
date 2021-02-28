@@ -1,0 +1,9 @@
+cheval
+chat
+chien
+cochon
+biche
+chouette
+chameau
+chiot
+chaton

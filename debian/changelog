@@ -1,3 +1,9 @@
+encoder-mots (1.1) UNRELEASED; urgency=medium
+
+  * Dialog box on error, add Phonèmes/graphèmes pattern, change score informations, fixed bugs
+
+ -- Cyrille Biot <cyrille@cbiot.fr>  Sun, 28 Feb 2021 22:23:22 +0100
+
 encoder-mots (1.0) unstable; urgency=medium
 
   * Initial release. (Closes: #XXXXXX)
