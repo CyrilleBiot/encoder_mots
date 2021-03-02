@@ -16,12 +16,21 @@ __status__ = "Devel"
 """
 import gi
 gi.require_version("Gtk", "3.0")
-from gi.repository import Gtk, GdkPixbuf, Gdk
+from gi.repository import Gtk, GdkPixbuf, Gdk, Gst
 from random import choice
 import string
-import vlc
+#import vlc
+from speech.conf import Conf
+from speech.audioutils import get_audio_commands, run_audio_files
+from speech.textutils import text_to_dict
+from speech.widgets.events import on_player, on_message
+
 import os.path
 
+
+Gst.init('')
+conf = Conf()
+conf.set_lang('fr')
 
 # ==============================================
 #      Si utilisation hors package, nécessite
@@ -401,10 +410,11 @@ class EcrireMot(Gtk.Window):
         """
         # Si le bouton droit de la souris est pressé
         if event.type == Gdk.EventType.BUTTON_PRESS and event.button == 3:
-            file = "phonemes/" + param.get_label() + '.mp3'
-            print(file)
-            piste = vlc.MediaPlayer(file)
-            piste.play()
+            #file = "phonemes/" + param.get_label() + '.mp3'
+            #print(file)
+            #piste = vlc.MediaPlayer(file)
+            #piste.play()
+            self._play_sound(param.get_label())
             return True  # event has been handled
         pass
 
@@ -414,9 +424,28 @@ class EcrireMot(Gtk.Window):
         :param wigdet:
         :param ogg: le fichier son
         """
-        file = self.dirBase + "/images-mp3/" + self.mot_a_trouver + '.mp3'
-        piste = vlc.MediaPlayer(file)
-        piste.play()
+        #file = self.dirBase + "/images-mp3/" + self.mot_a_trouver + '.mp3'
+
+        #piste = vlc.MediaPlayer(file)
+        #piste.play()
+        self._play_sound(self.mot_a_trouver)
+    
+    def _play_sound(self, text):
+        player = on_player(conf.temp_path)
+        text = text_to_dict(
+            self.mot_a_trouver,
+            conf.dict_path,
+            conf.lang
+        )
+        names, cmds = get_audio_commands(
+            text,
+            conf.temp_path,
+            conf.lang,
+            conf.cache_path,
+            conf.voice_speed
+        )
+        run_audio_files(names, cmds, conf.temp_path)
+        player.set_state(Gst.State.PLAYING)
 
     def on_valid_config_theme(self, widget):
         """
