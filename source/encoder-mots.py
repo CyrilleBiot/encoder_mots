@@ -8,8 +8,8 @@ __author__ = "Cyrille BIOT <cyrille@cbiot.fr>"
 __copyright__ = "Copyleft"
 __credits__ = "Cyrille BIOT <cyrille@cbiot.fr>"
 __license__ = "GPL"
-__version__ = "1.1"
-__date__ = "2020/02/27"
+__version__ = "1.2"
+__date__ = "2020/03/04"
 __maintainer__ = "Cyrille BIOT <cyrille@cbiot.fr>"
 __email__ = "cyrille@cbiot.fr"
 __status__ = "Devel"
@@ -21,6 +21,7 @@ from random import choice
 import string
 import vlc
 import os.path
+import time
 
 
 # ==============================================
@@ -92,7 +93,7 @@ class EcrireMot(Gtk.Window):
         bouton_valider.connect("clicked", self.on_validate_word, self.label_mot_cache, self.label_du_score)
 
         # Création du clavier virtuel
-        self.voyelles = "aàeéèêiîïoôöuy"
+        self.voyelles = "aàâeéèêiîïoôöuy"
         self.consommes = "bcçdfghjklmnpqrstvwxz"
         self.g = ["au", "eau", "ar", "ai", "ei", "er","et", "ez", "eu", "an", "am", "en", "em", "ou", "oi", "or", "on", "om", "ar",
                   "ch", "ph", "ain", "ein", "in", "im",  "un", "um" , "ion", "oin","ss"]
@@ -142,7 +143,7 @@ class EcrireMot(Gtk.Window):
 
         # Les consommes
         for i in range(len(self.voyelles) + len(self.g), len(self.voyelles) + len(self.g) + len(self.consommes)):
-            if position_bouton_consomme > len(self.consommes) / 2 + 1:
+            if position_bouton_consomme > len(self.consommes) / 2 + 4:
                 nouvelle_ligne = 4
                 pc = position_bouton_consomme - round((len(self.consommes) / 2))
             else:
@@ -224,11 +225,11 @@ class EcrireMot(Gtk.Window):
         label_config_theme = Gtk.Label(label='Thèmes :')
         grid2.attach(label_config_theme,1,1,3,1)
 
-        buttonTheme0 = Gtk.RadioButton(label="'Animaux domestiques'")
+        buttonTheme0 = Gtk.RadioButton(label="Animaux domestiques")
         buttonTheme0.connect("toggled", self.toggled_cb_theme)
         grid2.attach(buttonTheme0, 1, 2, 1, 1)
 
-        possibilities = ['Animaux de la forêt','Animaux sauvages']
+        possibilities = ['Animaux de la forêt','Animaux sauvages', 'Les aliments', "Le temps", 'Les adjectifs']
         buttonTheme = [0] * len(possibilities)
         nb_lignes_grid2 = len(possibilities)+3
 
@@ -262,13 +263,13 @@ class EcrireMot(Gtk.Window):
         buttonPhoneme0.connect("toggled", self.toggled_cb_theme)
         grid2.attach(buttonPhoneme0, 4, 2, 1, 1)
 
-        possibilities = ['on-om','on', 'o-au-eau','k-q-qu-c','ch','an-en','an-en-em-am','in-ain-im-aim-ein']
+        possibilities = ['on-om','on', 'o-au-eau','c-k-q-qu','ch','an-en','an-en-em-am','in-ain-im-aim-ein', 'son-je','sons-ail-aille','sons-cr-gr-pr-br-tr','sons-f-v-j']
         buttonPhoneme = [0] * len(possibilities)
         nb_lignes_grid2 = len(possibilities)+3
 
         for i in range(len(possibilities)):
             # another radiobutton, in the same group as button1
-            buttonPhoneme[i] = Gtk.RadioButton.new_from_widget(buttonTheme0)
+            buttonPhoneme[i] = Gtk.RadioButton.new_from_widget(buttonPhoneme0)
             buttonPhoneme[i].set_label(possibilities[i])
             buttonPhoneme[i].connect("toggled", self.toggled_cb_theme)
             buttonPhoneme[i].set_active(False)
@@ -276,7 +277,7 @@ class EcrireMot(Gtk.Window):
             grid2.attach(buttonPhoneme[i], 4, i+3, 1, 1)
 
         buttonOK = Gtk.Button(label="Valider le choix")
-        buttonOK.connect('clicked', self.on_valid_config_theme)
+        buttonOK.connect('clicked', self.on_valid_config_phoneme)
 
         # Pack at bottom of the button OK theme
         if nb_lignes_grid2 < len(possibilities)+2:
@@ -342,7 +343,7 @@ class EcrireMot(Gtk.Window):
             pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(filename=image, width=200, height=200, \
                                                              preserve_aspect_ratio=False)
         else:
-            image = self.dirBase + '/images/' +  'croix-rouge.jpg'
+            image = self.dirBase + '/images/' +  'pas-d-image.jpg'
         return image
 
     def on_next_word(self):
@@ -350,6 +351,7 @@ class EcrireMot(Gtk.Window):
         Fonction relancement la partie
         :return:
         """
+
 
         self.positionInWord = 0
         # Mise à jour du mot
@@ -430,6 +432,12 @@ class EcrireMot(Gtk.Window):
             self.file = "listes-de-mots/animaux-sauvages.txt"
         if self.theme_tri == "Animaux de la forêt":
             self.file = "listes-de-mots/animaux-foret.txt"
+        if self.theme_tri == "Les aliments":
+            self.file = "listes-de-mots/aliments.txt"
+        if self.theme_tri == "Le temps":
+            self.file = "listes-de-mots/le-temps.txt"
+        if self.theme_tri == "Les adjectifs":
+            self.file = "listes-de-mots/les-adjectifs.txt"
 
         print("ON VALID CONF", self.theme_tri, self.file)
 
@@ -474,7 +482,6 @@ class EcrireMot(Gtk.Window):
         self.notebook.set_current_page(0)
         print(self.mot_a_trouver)
         print(self.motif_tri, " - - ", self.theme_tri)
-
 
     def on_valid_config_phoneme(self, widget):
         """
@@ -482,12 +489,7 @@ class EcrireMot(Gtk.Window):
         :param widget:
         :return:
         """
-        if self.theme_tri == "Animaux domestiques":
-            self.file = "listes-de-mots/animaux-domestiques.txt"
-        if self.theme_tri == "Animaux sauvages":
-            self.file = "listes-de-mots/animaux-sauvages.txt"
-        if self.theme_tri == "Animaux de la forêt":
-            self.file = "listes-de-mots/animaux-foret.txt"
+        self.file = self.dirBase + "/listes-de-mots/" + self.theme_tri + ".txt"
 
         print("ON VALID CONF", self.theme_tri, self.file)
 
@@ -532,7 +534,6 @@ class EcrireMot(Gtk.Window):
         self.notebook.set_current_page(0)
         print(self.mot_a_trouver)
         print(self.motif_tri, " - - ", self.theme_tri)
-
 
     def on_key_press_event(self, widget, event, label, buttonSensitive):
         """
@@ -618,6 +619,7 @@ class EcrireMot(Gtk.Window):
         label.set_text(self.mot_cache)
         self.positionInWord = 0
 
+
     def on_validate_word(self, widget, label, label2):
         """
         Valide le mot proposé
@@ -626,7 +628,7 @@ class EcrireMot(Gtk.Window):
         :return:
         """
         if self.mot_cache.capitalize() == self.mot_a_trouver.capitalize():
-            message = 'très bien'
+            self.image_alert(self)
             self.score += 1
             label2.set_text("Score : " + str(self.score) + " / " + str(self.nombreDeMots) + " sur " + str(self.score_total))
 
@@ -659,6 +661,19 @@ class EcrireMot(Gtk.Window):
         dialog.format_secondary_text(message2)
         dialog.run()
         dialog.destroy()
+    def image_alert(self,widget):
+        messagedialog = Gtk.MessageDialog(None, Gtk.DialogFlags.MODAL, Gtk.MessageType.INFO, \
+                                          Gtk.ButtonsType.OK, "Félicitations..!!")
+
+        scoreimg = Gtk.Image()
+        scoreimg.set_from_file(self.dirBase + 'images/bravo.jpg')
+        messagedialog.set_image(scoreimg)
+        action_area = messagedialog.get_content_area()
+        lbl2 = Gtk.Label("Gagné !")
+        action_area.add(lbl2)
+        messagedialog.show_all()
+        messagedialog.run()
+        messagedialog.destroy()
 
     def gtk_style(self):
         """

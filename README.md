@@ -34,14 +34,6 @@ dpkg -r encoder-mots
 ```
 
 ## Todo
-Fichier de mots avec possibilité de filtre par phonème. Style
-bateau, [O]. Et parsing de ce fichier. La moulinette initiale a été abandonnée. A suivre.
-
-Incrémenter la base de données par thèmes.
-
-Pour l'instant, la fonction en fin de série est desactivée.
-
-Proposer une solution en cas de mot faux.
 
 Proposer des tips pour les lettres muettes, les consommes doubles...
 
@@ -50,16 +42,23 @@ Proposer des tips pour les lettres muettes, les consommes doubles...
 
 ![screenshoot](./screenshoot001.png)
 
-Ce que ça donnera avec les phonèmes/graphêmes
 ![screenshoot](./screenshoot002.png)
+
+![screenshoot](./screenshoot003.png)
+
+![screenshoot](./screenshoot004.png)
+
+![screenshoot](./screenshoot005.png)
+
 
 ## Changelog
 
-encoder-mots (1.1) UNRELEASED; urgency=medium
+encoder-mots (1.2) UNRELEASED; urgency=medium
 
-  * Dialog box on error, add Phonèmes/graphèmes pattern, change score informations, fixed bugs, add key event Return and backspace on the virtual keyboard
+  * Dialog box on error, add Phonèmes/graphèmes pattern, change score informations, fixed bugs
+  * Others...
 
- -- Cyrille Biot <cyrille@cbiot.fr>  Sun, 28 Feb 2021 22:23:22 +0100
+ -- Cyrille Biot <cyrille@cbiot.fr>  Thu, 04 Mar 2021 21:04:49 +0100
 
 encoder-mots (1.0) unstable; urgency=medium
 
