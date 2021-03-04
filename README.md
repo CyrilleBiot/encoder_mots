@@ -22,6 +22,7 @@ git clone https://github.com/CyrilleBiot/encoder_mots.git
 
 # Depuis pkg
 
+Attention : prendre la dernière version. 
 ```
 wget https://github.com/CyrilleBiot/encoder_mots/raw/master/encoder-mots_1.0_all.deb
 dpkg -i encoder-mots_1.0_all.deb
