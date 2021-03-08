@@ -20,18 +20,11 @@ from gi.repository import Gtk, GdkPixbuf, Gdk, Gst
 from random import choice
 import string
 #import vlc
-from speech.conf import Conf
-from speech.audioutils import get_audio_commands, run_audio_files
-from speech.textutils import text_to_dict
-from speech.widgets.events import on_player, on_message
+from speech.api import Player
 
 import os.path
 import time
 
-
-Gst.init('')
-conf = Conf()
-conf.set_lang('fr')
 
 # ==============================================
 #      Si utilisation hors package, nécessite
@@ -297,6 +290,8 @@ class EcrireMot(Gtk.Window):
         # Ajout au notebook
         self.notebook.append_page(grid2, Gtk.Label(label='Configuration'))
 
+        self.player = Player(False, "fr-FR", 1)
+
     def init_the_game(self):
         # Fichier par défaut
         self.file = self.dirBase  + 'listes-de-mots/animaux-domestiques.txt'
@@ -416,7 +411,7 @@ class EcrireMot(Gtk.Window):
             #print(file)
             #piste = vlc.MediaPlayer(file)
             #piste.play()
-            self._play_sound(param.get_label())
+            self.player.read(param.get_label())
             return True  # event has been handled
         pass
 
@@ -430,24 +425,7 @@ class EcrireMot(Gtk.Window):
 
         #piste = vlc.MediaPlayer(file)
         #piste.play()
-        self._play_sound(self.mot_a_trouver)
-    
-    def _play_sound(self, text):
-        player = on_player(conf.temp_path)
-        text = text_to_dict(
-            self.mot_a_trouver,
-            conf.dict_path,
-            conf.lang
-        )
-        names, cmds = get_audio_commands(
-            text,
-            conf.temp_path,
-            conf.lang,
-            conf.cache_path,
-            conf.voice_speed
-        )
-        run_audio_files(names, cmds, conf.temp_path)
-        player.set_state(Gst.State.PLAYING)
+        self.player.read(self.mot_a_trouver)
 
     def on_valid_config_theme(self, widget):
         """
