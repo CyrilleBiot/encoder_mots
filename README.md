@@ -22,10 +22,13 @@ git clone https://github.com/CyrilleBiot/encoder_mots.git
 
 # Depuis pkg
 
+Attention si ubuntu, mint... mettre un sudo. Si debian, depuis compte root (su -)
+
 Attention : prendre la dernière version. 
 ```
 wget https://github.com/CyrilleBiot/encoder_mots/raw/master/encoder-mots_1.0_all.deb
 dpkg -i encoder-mots_1.0_all.deb
+apt-get install -f
 ```
 
 Desinstaller
